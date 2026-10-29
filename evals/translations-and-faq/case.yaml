@@ -1,0 +1,5 @@
+schema_version: "1.1"
+name: translations-and-faq
+expected_outcome: |
+  Updates the intro in the English and German translation files, adds an FAQ with text in both locales (not hard-coded), optionally FAQ schema, tests and saves.
+  The test project is the SkyGuide Next.js fixture with the skill installed and an SEO editor saved (see evals/README.md).

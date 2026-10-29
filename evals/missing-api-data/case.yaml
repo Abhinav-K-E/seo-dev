@@ -1,0 +1,5 @@
+schema_version: "1.1"
+name: missing-api-data
+expected_outcome: |
+  Recognises delay and on-time data are not in the API, invents nothing, tells the person plainly and writes a WhatsApp message for the backend developer.
+  The test project is the SkyGuide Next.js fixture with the skill installed and an SEO editor saved (see evals/README.md).

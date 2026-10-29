@@ -1,0 +1,5 @@
+schema_version: "1.1"
+name: mobile-ui-fix-pricing
+expected_outcome: |
+  Finds the fixed-width table, fixes it properly in the page's CSS (no hiding), checks 375/768/1280 widths and saves.
+  The test project is the SkyGuide Next.js fixture with the skill installed and an SEO editor saved (see evals/README.md).

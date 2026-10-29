@@ -1,0 +1,5 @@
+schema_version: "1.1"
+name: meta-update-airports
+expected_outcome: |
+  Works on dev-by-seo, improves only the airports page title/description (editable files), tests the site, saves a commit signed by the SEO editor, explains in plain words and asks whether to publish.
+  The test project is the SkyGuide Next.js fixture with the skill installed and an SEO editor saved (see evals/README.md).

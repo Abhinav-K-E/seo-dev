@@ -1,0 +1,61 @@
+# Keeps the SEO draft branch up to date with main on every push to main.
+# Installed by the seo-dev skill. If main and the draft branch edited the same lines,
+# the merge is skipped and an issue is opened so a developer can resolve it.
+name: Keep __WORK__ up to date
+
+on:
+  push:
+    branches: [__MAIN__]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: sync-__WORK__
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Merge __MAIN__ into __WORK__
+        id: merge
+        env:
+          WORK: __WORK__
+          MAIN: __MAIN__
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if ! git ls-remote --exit-code --heads origin "$WORK" >/dev/null 2>&1; then
+            git push origin "origin/$MAIN:refs/heads/$WORK"
+            echo "Created $WORK from $MAIN."
+            exit 0
+          fi
+          git checkout -B "$WORK" "origin/$WORK"
+          if [ "$(git rev-list --count "$WORK..origin/$MAIN")" = "0" ]; then
+            echo "$WORK already contains $MAIN."
+            exit 0
+          fi
+          if git merge --no-ff --no-edit -m "chore(sync): bring in latest $MAIN" "origin/$MAIN"; then
+            git push origin "$WORK"
+          else
+            git merge --abort || true
+            echo "conflict=true" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+
+      - name: Open an issue when the merge needs a developer
+        if: failure() && steps.merge.outputs.conflict == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="__WORK__ could not be updated from __MAIN__ automatically"
+          if ! gh issue list --state open --search "$title in:title" --json number --jq '.[0].number' | grep -q .; then
+            gh issue create --title "$title" --body "Main and the SEO draft branch edited the same lines. The SEO editor's next session will try to resolve it; if that fails, please merge __MAIN__ into __WORK__ by hand. Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          fi
